@@ -1,6 +1,6 @@
 # Club Finance
 
-Club Finance is a full-stack expense-splitting platform built for student organizations, robotics teams, clubs, and volunteer groups. Members can create groups, log shared expenses, split costs equally or by custom amounts, and see exactly who owes whom. Functions with automatic debt simplification to minimize the number of payments needed to settle up.
+Club Finance is a full-stack expense-splitting platform built for student organizations, robotics teams, clubs, and volunteer groups. Members can create groups, log shared expenses, split costs equally or by custom amounts, and see exactly who owes whom — with automatic debt simplification to minimize the number of payments needed to settle up.
 
 ---
 
@@ -278,15 +278,15 @@ The engine calculates:
 
 ```
 Aryaa:  +60 (paid) − 20 (her share) = +40   ← is owed
-Anastasiia:   −20                                  ← owes
-Seb:  −20                                  ← owes
+Sebastian:   −20                            ← owes
+Anastasiia:  −20                            ← owes
 ```
 
 Debt simplification then produces:
 
 ```
-Anastasiia  → Aryaa  $20
-Seb → Aryaa  $20
+Anastasiia → Aryaa  $20
+Sebastian  → Aryaa  $20
 ```
 
 With multiple expenses and people, the algorithm collapses all debts into the fewest possible payments using a greedy max-creditor / max-debtor approach.
@@ -338,3 +338,5 @@ Future features planned for subsequent versions:
 - Progressive Web App (installable on mobile)
 - AI assistant ("how much did we spend on robot parts?")
 - Admin dashboard
+
+---
