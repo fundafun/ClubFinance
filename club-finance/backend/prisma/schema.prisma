@@ -1,0 +1,105 @@
+// Prisma schema for Club Finance MVP
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum GroupRole {
+  OWNER
+  TREASURER
+  MEMBER
+}
+
+enum SplitType {
+  EQUAL
+  CUSTOM
+  PERCENTAGE
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships     GroupMember[]
+  expensesPaid    Expense[]      @relation("PaidByUser")
+  expenseShares   ExpenseShare[]
+  settlementsFrom Settlement[]   @relation("SettlementFrom")
+  settlementsTo   Settlement[]   @relation("SettlementTo")
+}
+
+model Group {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  members      GroupMember[]
+  expenses     Expense[]
+  settlements  Settlement[]
+}
+
+model GroupMember {
+  id      String    @id @default(uuid())
+  userId  String
+  groupId String
+  role    GroupRole @default(MEMBER)
+  joinedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+}
+
+model Expense {
+  id          String    @id @default(uuid())
+  groupId     String
+  description String
+  amount      Decimal   @db.Decimal(10, 2)
+  category    String?
+  notes       String?
+  splitType   SplitType @default(EQUAL)
+  paidById    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  group  Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  paidBy User           @relation("PaidByUser", fields: [paidById], references: [id])
+  shares ExpenseShare[]
+}
+
+model ExpenseShare {
+  id        String  @id @default(uuid())
+  expenseId String
+  userId    String
+  amount    Decimal @db.Decimal(10, 2)
+  percentage Decimal? @db.Decimal(5, 2)
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([expenseId, userId])
+}
+
+model Settlement {
+  id        String   @id @default(uuid())
+  groupId   String
+  fromId    String
+  toId      String
+  amount    Decimal  @db.Decimal(10, 2)
+  status    String   @default("PENDING") // PENDING | PAID
+  createdAt DateTime @default(now())
+  paidAt    DateTime?
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  from  User  @relation("SettlementFrom", fields: [fromId], references: [id])
+  to    User  @relation("SettlementTo", fields: [toId], references: [id])
+}
